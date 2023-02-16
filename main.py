@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from db.database import database
-from routers import user
+from app.db.database import database
+from app.routers import user
 
 app = FastAPI(title="CP Graal Solver")
 
