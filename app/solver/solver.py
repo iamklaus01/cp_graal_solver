@@ -5,7 +5,7 @@ import numpy as np
 variables = [
     {
         'id': 0,
-        'name': 'np',
+        'name': 'x',
         'type': 'INTEGER',
         'domain_type': 'INTERVAL',
         'domain_value': [1, 100]
@@ -13,15 +13,7 @@ variables = [
     },
     {
         'id': 1,
-        'name': 'nb',
-        'type': 'INTEGER',
-        'domain_type': 'INTERVAL',
-        'domain_value': [1, 100]
-
-    },
-    {
-        'id': 2,
-        'name': 'nc',
+        'name': 'y',
         'type': 'INTEGER',
         'domain_type': 'INTERVAL',
         'domain_value': [1, 100]
@@ -29,41 +21,30 @@ variables = [
     }
 ]
 
+# X +2Y <= 14
+# 3X + Y >= 0
+# X - Y <= 2
 constraints = [
     {
-        'coefficient': [1],
-        'operators': [],
-        'metric': '>=',
-        'value': 1,
-        'variable_id': [0]
-    },
-    {
-        'coefficient': [1],
-        'operators': [],
-        'metric': '>=',
-        'value': 1,
-        'variable_id': [1]
-    },
-    {
-        'coefficient': [1],
-        'operators': [],
-        'metric': '>=',
-        'value': 1,
-        'variable_id': [2]
-    },
-    {
-        'coefficient': [1, 1, 1],
-        'operators': ['+', '+'],
-        'metric': '==',
-        'value': 100,
-        'variable_id': [0, 1, 2]
-    },
-    {
-        'coefficient': [5, 15, 25],
-        'operators': ['+', '+'],
+        'coefficient': [1,2],
+        'operators': ["+"],
         'metric': '<=',
-        'value': 100,
-        'variable_id': [0, 1, 2]
+        'value': 14,
+        'variable_id': [0,1]
+    },
+    {
+        'coefficient': [3,1],
+        'operators': ["-"],
+        'metric': '>=',
+        'value': 0,
+        'variable_id': [0,1]
+    },
+    {
+        'coefficient': [1,1],
+        'operators': ["-"],
+        'metric': '<=',
+        'value': 2,
+        'variable_id': [0,1]
     }
 ]
 
@@ -90,6 +71,9 @@ def main(variables, constraints):
             add_constraint(ct, solver, all_variables)
         else:
             add_constraint_unique_var(ct, solver, all_variables)
+
+    ## FUNCTION OBJECTIVE
+    solver.Maximize(3 * all_variables[0] + 4 * all_variables[1])
     return solver, all_variables
 
 
@@ -156,14 +140,17 @@ def add_constraint(ct, solver, all_variables):
     else:
         pass
 
-# solver, all_variables = main(variables, constraints)
-# status = solver.Solve()
-# print(status)
-# print('Number of constraints =', solver.NumConstraints())
-# print('Number of variables =', solver.NumVariables())
-# print('Problem solved in %f milliseconds' % solver.wall_time())
-# print('Problem solved in %d iterations' % solver.iterations())
-# print('Problem solved in %d branch-and-bound nodes' % solver.nodes())
-#
-# for var in all_variables:
-#     print(var.solution_value())
+solver, all_variables = main(variables, constraints)
+status = solver.Solve()
+
+if status == pywraplp.Solver.OPTIMAL:
+    print(status)
+    print('Number of constraints =', solver.NumConstraints())
+    print('Number of variables =', solver.NumVariables())
+    print('Problem solved in %f milliseconds' % solver.wall_time())
+    print('Problem solved in %d iterations' % solver.iterations())
+    print('Problem solved in %d branch-and-bound nodes' % solver.nodes())
+    for var in all_variables:
+        print(var.solution_value())
+else:
+    print('The problem does not have an optimal solution.')
